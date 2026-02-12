@@ -15,6 +15,7 @@ import argparse
 import platform
 import sys
 
+# Placeholder or example secrets from .env.example that should be replaced.
 DEFAULT_SECRET_VALUES = {
     "N8N_ENCRYPTION_KEY": {"super-secret-key"},
     "N8N_USER_MANAGEMENT_JWT_SECRET": {"even-more-secret"},
@@ -41,7 +42,7 @@ def load_env_file(path):
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
                 continue
-            key, value = line.split("=", 1)
+            key, _, value = line.partition("=")
             value = value.strip()
             if " #" in value:
                 value = value.split(" #", 1)[0].strip()
