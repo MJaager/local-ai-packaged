@@ -48,7 +48,7 @@ def load_env_file(path):
                 continue
             key, _, value = line.partition("=")
             value = value.strip()
-            if value and value[0] in {"'", '"'} and value[-1] == value[0] and len(value) > 1:
+            if value and len(value) > 1 and value[0] in {"'", '"'} and value[-1] == value[0]:
                 value = value[1:-1]
             else:
                 comment_index = value.find("#")
@@ -78,7 +78,7 @@ def validate_env_secrets(path, environment):
     message = (
         "Insecure placeholder secrets detected in .env for: "
         + ", ".join(sorted(insecure_keys))
-        + ". Update these values before continuing."
+        + ". Update these values with secure random strings (see .env.example for guidance)."
     )
     if environment == "public":
         print(f"Error: {message}")
