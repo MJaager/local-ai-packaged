@@ -37,8 +37,8 @@ DEFAULT_SECRET_VALUES = {
 def load_env_file(path):
     """Load simple KEY=VALUE pairs from a .env file.
 
-    Strips surrounding quotes when values are fully quoted without internal matching quotes,
-    and removes inline comments that start with # after whitespace.
+    Strips surrounding quotes when values start and end with the same quote character,
+    and removes inline comments that start with # after whitespace (quote values that need #).
     """
     values = {}
     with open(path, "r", encoding="utf-8") as env_file:
@@ -49,9 +49,7 @@ def load_env_file(path):
             key, _, value = line.partition("=")
             value = value.strip()
             if value and value[0] in {"'", '"'} and value[-1] == value[0] and len(value) > 1:
-                inner_value = value[1:-1]
-                if value[0] not in inner_value:
-                    value = inner_value
+                value = value[1:-1]
             else:
                 comment_index = value.find("#")
                 if comment_index != -1 and (comment_index == 0 or value[comment_index - 1].isspace()):
