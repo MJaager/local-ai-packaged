@@ -42,10 +42,14 @@ def load_env_file(path):
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
                 continue
+            if "#" in line and line.find("#") < line.find("="):
+                continue
             key, _, value = line.partition("=")
             value = value.strip()
-            if " #" in value:
-                value = value.split(" #", 1)[0].strip()
+            if value and value[0] in {"'", '"'} and value[-1] == value[0] and len(value) > 1:
+                value = value[1:-1]
+            elif "#" in value:
+                value = value.split("#", 1)[0].strip()
             values[key.strip()] = value
     return values
 
