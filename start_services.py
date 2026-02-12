@@ -42,18 +42,20 @@ def load_env_file(path):
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
                 continue
-            if "#" in line and line.find("#") < line.find("="):
-                continue
             key, _, value = line.partition("=")
             value = value.strip()
             if value and value[0] in {"'", '"'} and value[-1] == value[0] and len(value) > 1:
-                value = value[1:-1]
+                inner_value = value[1:-1]
+                if value[0] not in inner_value:
+                    value = inner_value
+                else:
+                    value = value.strip()
             elif "#" in value:
                 value = value.split("#", 1)[0].strip()
             values[key.strip()] = value
     return values
 
-def ensure_env_file(path):
+def require_env_file(path):
     """Ensure the .env file exists before continuing."""
     if os.path.exists(path):
         return
@@ -312,7 +314,7 @@ def main():
     args = parser.parse_args()
 
     env_path = ".env"
-    ensure_env_file(env_path)
+    require_env_file(env_path)
     validate_env_secrets(env_path, args.environment)
 
     clone_supabase_repo()
