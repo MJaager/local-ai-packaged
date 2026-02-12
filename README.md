@@ -111,6 +111,7 @@ Before running the services, you need to set up your environment variables for S
 
 > [!IMPORTANT]
 > Make sure to generate secure random values for all secrets. Never use the example values in production.
+> The start_services.py script checks for placeholder secrets in your .env file and will stop public deployments (but only warn for private deployments) until they are updated.
 
 3. Set the following environment variables if deploying to production, otherwise leave commented:
    ```bash
@@ -401,6 +402,12 @@ your local n8n instance.
 - [Recipe Recommendations with Qdrant and Mistral](https://n8n.io/workflows/2333-recipe-recommendations-with-qdrant-and-mistral/)
 
 ## Tips & tricks
+
+### Security & optimization tips
+
+- Use the `--environment public` flag for any internet-facing deployment so ports stay closed behind Caddy.
+- Comment out services you do not need in `docker-compose.yml` to reduce resource usage and attack surface.
+- Tune `OLLAMA_MAX_LOADED_MODELS` and `SEARXNG_UWSGI_WORKERS` in `.env` for your available CPU/RAM.
 
 ### Accessing local files
 
