@@ -38,7 +38,8 @@ def load_env_file(path):
     """Load simple KEY=VALUE pairs from a .env file.
 
     Strips surrounding quotes when values start and end with the same quote character,
-    and removes inline comments that start with # after whitespace (quote values that need #).
+    and removes inline comments that start with # after whitespace for unquoted values
+    (quoted values keep # characters intact).
     """
     values = {}
     with open(path, "r", encoding="utf-8") as env_file:
