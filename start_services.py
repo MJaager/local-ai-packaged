@@ -35,7 +35,11 @@ DEFAULT_SECRET_VALUES = {
 }
 
 def load_env_file(path):
-    """Load simple KEY=VALUE pairs from a .env file."""
+    """Load simple KEY=VALUE pairs from a .env file.
+
+    Strips surrounding quotes when values are fully quoted without internal matching quotes,
+    and removes inline comments that start with # after whitespace.
+    """
     values = {}
     with open(path, "r", encoding="utf-8") as env_file:
         for line in env_file:
