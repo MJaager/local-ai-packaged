@@ -15,6 +15,67 @@ import argparse
 import platform
 import sys
 
+DEFAULT_SECRET_VALUES = {
+    "N8N_ENCRYPTION_KEY": {"super-secret-key"},
+    "N8N_USER_MANAGEMENT_JWT_SECRET": {"even-more-secret"},
+    "POSTGRES_PASSWORD": {"your-super-secret-and-long-postgres-password"},
+    "JWT_SECRET": {"your-super-secret-jwt-token-with-at-least-32-characters-long"},
+    "ANON_KEY": {"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE"},
+    "SERVICE_ROLE_KEY": {"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q"},
+    "DASHBOARD_PASSWORD": {"this_password_is_insecure_and_should_be_updated"},
+    "NEO4J_AUTH": {"neo4j/password", "neo4j/your_password"},
+    "CLICKHOUSE_PASSWORD": {"super-secret-key-1"},
+    "MINIO_ROOT_PASSWORD": {"super-secret-key-2"},
+    "LANGFUSE_SALT": {"super-secret-key-3"},
+    "NEXTAUTH_SECRET": {"super-secret-key-4"},
+    "ENCRYPTION_KEY": {"generate-with-openssl"},
+    "SECRET_KEY_BASE": {"UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq"},
+    "VAULT_ENC_KEY": {"your-32-character-encryption-key"},
+}
+
+def load_env_file(path):
+    """Load simple KEY=VALUE pairs from a .env file."""
+    values = {}
+    with open(path, "r", encoding="utf-8") as env_file:
+        for line in env_file:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            value = value.strip()
+            if " #" in value:
+                value = value.split(" #", 1)[0].strip()
+            values[key.strip()] = value
+    return values
+
+def ensure_env_file(path):
+    """Ensure the .env file exists before continuing."""
+    if os.path.exists(path):
+        return
+    print("Error: .env file not found. Copy .env.example to .env and update the secrets.")
+    sys.exit(1)
+
+def validate_env_secrets(path, environment):
+    """Warn or stop if known placeholder secrets are still in use."""
+    values = load_env_file(path)
+    insecure_keys = [
+        key for key, defaults in DEFAULT_SECRET_VALUES.items()
+        if values.get(key) in defaults
+    ]
+
+    if not insecure_keys:
+        return
+
+    message = (
+        "Insecure placeholder secrets detected in .env for: "
+        + ", ".join(sorted(insecure_keys))
+        + ". Update these values before continuing."
+    )
+    if environment == "public":
+        print(f"Error: {message}")
+        sys.exit(1)
+    print(f"Warning: {message}")
+
 def run_command(cmd, cwd=None):
     """Run a shell command and print it."""
     print("Running:", " ".join(cmd))
@@ -244,6 +305,10 @@ def main():
     parser.add_argument('--environment', choices=['private', 'public'], default='private',
                       help='Environment to use for Docker Compose (default: private)')
     args = parser.parse_args()
+
+    env_path = ".env"
+    ensure_env_file(env_path)
+    validate_env_secrets(env_path, args.environment)
 
     clone_supabase_repo()
     fix_windows_line_endings()
