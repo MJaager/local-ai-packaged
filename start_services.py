@@ -48,10 +48,10 @@ def load_env_file(path):
                 inner_value = value[1:-1]
                 if value[0] not in inner_value:
                     value = inner_value
-                else:
-                    value = value.strip()
-            elif "#" in value:
-                value = value.split("#", 1)[0].strip()
+            else:
+                comment_index = value.find("#")
+                if comment_index != -1 and (comment_index == 0 or value[comment_index - 1].isspace()):
+                    value = value[:comment_index].strip()
             values[key.strip()] = value
     return values
 

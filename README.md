@@ -111,7 +111,7 @@ Before running the services, you need to set up your environment variables for S
 
 > [!IMPORTANT]
 > Make sure to generate secure random values for all secrets. Never use the example values in production.
-> The start_services.py script checks for placeholder secrets in your .env file and will stop public deployments until they are updated.
+> The start_services.py script checks for placeholder secrets in your .env file and will stop public deployments (but only warn for private deployments) until they are updated.
 
 3. Set the following environment variables if deploying to production, otherwise leave commented:
    ```bash
